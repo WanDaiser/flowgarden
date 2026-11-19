@@ -1,0 +1,7 @@
+---
+import SkyPage from '../components/SkyPage.astro';
+import { bodyMeta } from '../lib/pages';
+const meta = bodyMeta('about', 'en');
+---
+
+<SkyPage locale="en" initial="about" {...meta} />

@@ -1,0 +1,227 @@
+---
+/**
+ * Ana deneyim: pixel gökyüzü haritası + tüm duraklar.
+ * Aynı bileşen /, /games/[slug], /about, /contact sayfalarında kullanılır; yalnızca
+ * `initial` (kameranın açılışta odaklandığı durak) değişir.
+ *
+ * Katmanlar (alttan üste): canvas → yıldız bağlantıları → paneller → HUD → açılış ekranı.
+ * JS kapalıysa canvas/HUD gizlenir, paneller sade bir HTML sayfası olarak akar.
+ */
+import '../styles/sky.css';
+import { t, localizePath, type Locale } from '../i18n';
+import { getGames } from '../lib/games';
+import { buildStops } from '../lib/stops';
+import { constellationConfig } from '../config/site.config';
+import GamePanel from './GamePanel.astro';
+import BodyPanel from './BodyPanel.astro';
+import PixelIcon from './PixelIcon.astro';
+
+interface Props {
+  locale: Locale;
+  initial: string; // 'map' | slug | 'about' | 'contact'
+}
+const { locale, initial } = Astro.props;
+const alt: Locale = locale === 'en' ? 'tr' : 'en';
+const games = await getGames();
+const stops = buildStops(games, locale);
+const altStops = buildStops(games, alt);
+const stopsData = stops.map((s, i) => ({ ...s, altPath: altStops[i]!.path }));
+const gameStops = stops.filter((s) => s.kind === 'game');
+
+const neighbor = (i: number) => {
+  const s = stops[i];
+  return s ? { id: s.id, label: s.label, path: s.path } : undefined;
+};
+
+const skyData = {
+  initial,
+  stops: stopsData,
+  intro: true,
+  assets: { splash: '/brand/splash_sheet.png', nebula: '/brand/nebula.png' },
+  strings: {
+    soundOn: t(locale, 'sound.on'),
+    soundOff: t(locale, 'sound.off'),
+    released: t(locale, 'status.released'),
+    soon: t(locale, 'status.coming-soon'),
+  },
+};
+
+// </script> gibi dizgeler JSON'u bozmasın diye "<" kaçışlanır
+const safeJson = JSON.stringify(skyData).replaceAll('<', String.fromCharCode(92) + 'u003c');
+
+// Harita göstergesi: tüm durakların küçük haritası (0–1 → %)
+const xs = stops.filter((s) => s.kind !== 'map').map((s) => s.x);
+const ys = stops.filter((s) => s.kind !== 'map').map((s) => s.y);
+const minX = Math.min(...xs),
+  maxX = Math.max(...xs),
+  minY = Math.min(...ys),
+  maxY = Math.max(...ys);
+const mm = (x: number, y: number) => ({
+  left: ((x - minX) / (maxX - minX)) * 100,
+  top: ((y - minY) / (maxY - minY)) * 100,
+});
+const wById = new Map(constellationConfig.stars.map((s) => [s.id, s]));
+const mmLines = constellationConfig.lines
+  .map(([a, b]) => [wById.get(a), wById.get(b)])
+  .filter((p): p is [NonNullable<typeof p[0]>, NonNullable<typeof p[1]>] => !!p[0] && !!p[1])
+  .map(([a, b]) => ({ a: mm(a.x, a.y), b: mm(b.x, b.y) }));
+---
+
+<div id="sky-app" class="sky-app" data-initial={initial}>
+  <canvas id="sky-canvas" class="sky-canvas" aria-hidden="true"></canvas>
+
+  <!-- Açılış ekranı (yalnızca ilk ziyarette ve JS açıkken görünür) -->
+  <div id="loader" class="loader" aria-hidden="true">
+    <canvas id="splash-canvas" class="pixel" width="128" height="72"></canvas>
+    <p class="hud loader-skip">{t(locale, 'nav.skipIntro')} ↵</p>
+  </div>
+
+  <!-- Üst çubuk -->
+  <header class="hud-bar hud-top">
+    <a class="brand" href={localizePath('/', locale)} data-go="map" aria-label={`WanDaiser Games — ${t(locale, 'nav.starMap')}`}>
+      <img class="pixel" src="/brand/logo_wandaiser_x1.png" width="192" height="56" alt="WanDaiser" />
+    </a>
+    <div class="hud-actions">
+      <button class="pbtn sound-toggle" type="button" aria-pressed="false" aria-label={t(locale, 'sound.off')} title={t(locale, 'sound.off')}>
+        <PixelIcon name="soundOn" scale={2} class="i-on" />
+        <PixelIcon name="soundOff" scale={2} class="i-off" />
+      </button>
+      <a class="pbtn lang-switch" href={localizePath(stops.find((s) => s.id === initial)?.path ?? '/', alt)} hreflang={alt} lang={alt} aria-label={t(locale, 'lang.switchLabel')}>
+        {alt.toUpperCase()}
+      </a>
+    </div>
+  </header>
+
+  <!-- Gökyüzündeki her durak: odaklanabilir, ekran okuyucuya adı söylenen bağlantılar -->
+  <nav class="star-links" aria-label={t(locale, 'nav.starMap')}>
+    {
+      stops
+        .filter((s) => s.kind !== 'map')
+        .map((s) => (
+          <a
+            class="star-link"
+            href={s.path}
+            data-star={s.id}
+            data-kind={s.kind}
+            data-status={s.status}
+            style={`--accent-game:${s.accent}`}
+            aria-current={s.id === initial ? 'page' : undefined}
+          >
+            <span class="star-label">
+              {s.label}
+              {s.status === 'coming-soon' && <span class="soon-tag">{t(locale, 'status.coming-soon')}</span>}
+            </span>
+            {s.kind === 'game' && <span class="visually-hidden">, {t(locale, `status.${s.status!}`)}</span>}
+          </a>
+        ))
+    }
+  </nav>
+
+  <main id="main" class="panels">
+    <!-- Harita durağı: stüdyo başlığı -->
+    <section class="panel map-panel" data-panel="map" aria-labelledby="studio-title">
+      {
+        initial === 'map' ? (
+          <h1 id="studio-title" class="title-pixel" tabindex="-1" data-panel-heading>
+            WanDaiser Games
+          </h1>
+        ) : (
+          <p id="studio-title" class="title-pixel" tabindex="-1" data-panel-heading>
+            WanDaiser Games
+          </p>
+        )
+      }
+      <p class="tagline">{t(locale, 'studio.tagline')}</p>
+      <p class="hint hud" aria-hidden="true">
+        <span class="hint-mouse">{t(locale, 'hint.navigate')}</span>
+        <span class="hint-touch">{t(locale, 'hint.navigateTouch')}</span>
+        <span class="hint-arrow">↓</span>
+      </p>
+      <!-- JS kapalıyken gezinme listesi -->
+      <ul class="nojs-index" role="list">
+        {
+          gameStops.map((s) => (
+            <li>
+              <a href={s.path}>{s.label}</a> <span class="hud">{t(locale, `status.${s.status!}`)}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    {
+      games.map((g) => {
+        const i = stops.findIndex((s) => s.id === g.slug);
+        return (
+          <GamePanel
+            game={g}
+            locale={locale}
+            index={gameStops.findIndex((s) => s.id === g.slug)}
+            total={gameStops.length}
+            prev={neighbor(i - 1)}
+            next={neighbor(i + 1)}
+            primary={initial === g.slug}
+          />
+        );
+      })
+    }
+    {
+      (['about', 'contact'] as const).map((id) => {
+        const i = stops.findIndex((s) => s.id === id);
+        return <BodyPanel id={id} locale={locale} gameCount={games.length} primary={initial === id} prev={neighbor(i - 1)} next={neighbor(i + 1)} />;
+      })
+    }
+  </main>
+
+  <!-- Harita göstergesi: nerede olduğunu ve kaç durak kaldığını gösterir -->
+  <nav class="minimap hud" aria-label={t(locale, 'nav.overview')}>
+    <div class="minimap-map" aria-hidden="true">
+      <svg class="minimap-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+        {mmLines.map((l) => <line x1={l.a.left} y1={l.a.top} x2={l.b.left} y2={l.b.top} vector-effect="non-scaling-stroke" />)}
+      </svg>
+      {
+        stops
+          .filter((s) => s.kind !== 'map')
+          .map((s) => {
+            const p = mm(s.x, s.y);
+            return (
+              <a
+                href={s.path}
+                data-mini={s.id}
+                tabindex="-1"
+                class:list={['mini-dot', `mini-${s.kind}`, { 'is-soon': s.status === 'coming-soon' }]}
+                style={`left:${p.left}%;top:${p.top}%`}
+              >
+                <span class="visually-hidden">{s.label}</span>
+              </a>
+            );
+          })
+      }
+    </div>
+    <p class="minimap-text">
+      <span class="minimap-count">01 / {String(stops.length).padStart(2, '0')}</span>
+      <span class="minimap-label">{t(locale, 'nav.starMap')}</span>
+    </p>
+  </nav>
+
+  <footer class="hud-bar hud-foot hud">
+    <a href={localizePath('/press', locale)}>{t(locale, 'nav.press')}</a>
+    <a href={localizePath('/privacy', locale)}>{t(locale, 'nav.privacy')}</a>
+  </footer>
+
+  <p id="sky-live" class="visually-hidden" aria-live="polite"></p>
+
+  <dialog id="lightbox" class="lightbox pframe" aria-label={t(locale, 'games.screenshots')}>
+    <img class="pixel" alt="" />
+    <button class="pbtn lightbox-close" type="button" data-close aria-label={t(locale, 'games.close')}>
+      <PixelIcon name="close" scale={2} />
+    </button>
+  </dialog>
+</div>
+
+<script is:inline type="application/json" id="sky-data" set:html={safeJson} />
+
+<script>
+  import { initSky } from '../scene/app';
+  void initSky();
+</script>

@@ -1,0 +1,101 @@
+---
+/** Gizlilik sayfaları: genel site politikası ve oyun başına politika. */
+import DocLayout from '../layouts/DocLayout.astro';
+import { render } from 'astro:content';
+import { t, localizePath, type Locale } from '../i18n';
+import { privacyFor, privacyGames, type PrivacyEntry } from '../lib/privacy';
+
+interface Props {
+  locale: Locale;
+  /** Verilirse oyun politikası; verilmezse genel /privacy sayfası. */
+  entry?: PrivacyEntry;
+  fallback?: boolean;
+}
+const { locale, entry, fallback = false } = Astro.props;
+
+let Content: Awaited<ReturnType<typeof render>>['Content'] | null = null;
+let title = t(locale, 'privacy.title');
+if (entry) {
+  Content = (await render(entry)).Content;
+  title = `${entry.data.gameName} — ${t(locale, 'privacy.title')}`;
+}
+
+// Genel sayfa: site politikası + oyun politikaları listesi
+const SiteContent = !entry
+  ? locale === 'tr'
+    ? (await import('../legal/privacy-tr.md')).Content
+    : (await import('../legal/privacy-en.md')).Content
+  : null;
+const gameDocs = !entry
+  ? (await Promise.all((await privacyGames()).map((g) => privacyFor(g, locale)))).filter((x) => x !== null)
+  : [];
+---
+
+<DocLayout locale={locale} title={title} kicker={entry ? t(locale, 'privacy.kicker') : undefined}>
+  {fallback && <p class="note hud" lang={locale}>{t(locale, 'privacy.fallbackNote')}</p>}
+  <div class="legal" lang={entry?.data.locale ?? locale}>
+    {Content && <Content />}
+    {SiteContent && <SiteContent />}
+  </div>
+
+  {
+    !entry && gameDocs.length > 0 && (
+      <section class="games">
+        <h2>{t(locale, 'privacy.gamePolicies')}</h2>
+        <ul role="list">
+          {gameDocs.map((d) => (
+            <li>
+              <a class="pbtn" href={localizePath(`/privacy/${d.entry.data.game}`, locale)}>
+                <span>{d.entry.data.gameName}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+  {
+    entry && (
+      <p class="back">
+        <a href={localizePath('/privacy', locale)}>← {t(locale, 'privacy.all')}</a>
+      </p>
+    )
+  }
+</DocLayout>
+
+<style>
+  .legal :global(blockquote) {
+    margin: 0 0 var(--space-8);
+    padding: var(--space-4);
+    border-left: 4px solid var(--c-ember);
+    background: var(--c-void);
+  }
+  .legal :global(blockquote p) {
+    margin: 0;
+  }
+  .legal :global(code) {
+    font-family: var(--font-mono);
+    color: var(--c-ember);
+  }
+  .legal :global(li) {
+    margin-bottom: var(--space-3);
+  }
+  .legal :global(a) {
+    overflow-wrap: anywhere;
+  }
+  .note {
+    padding: var(--space-3) var(--space-4);
+    background: var(--c-void);
+    border-left: 4px solid var(--c-faint);
+  }
+  .games ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+  .back {
+    margin-top: var(--space-12);
+  }
+</style>

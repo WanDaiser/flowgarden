@@ -1,0 +1,142 @@
+---
+/**
+ * Geliştirme sayfası: renkler, tipografi ve yer tutucu varlıklar tek bakışta.
+ * Arama motorlarına kapalı (noindex + robots.txt + sitemap dışı).
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { palette, constellationConfig } from '../../config/site.config';
+import { getGames } from '../../lib/games';
+
+const games = await getGames();
+const swatches = Object.entries(palette);
+---
+
+<BaseLayout locale="en" title="Styleguide" noindex>
+  <div class="container sg">
+    <p class="hud">Dev · Stage 1</p>
+    <h1>Styleguide</h1>
+
+    <section>
+      <h2 class="hud">Palette</h2>
+      <ul class="swatches" role="list">
+        {
+          swatches.map(([name, value]) => (
+            <li>
+              <span class="chip" style={`background:${value}`} />
+              <code>{name}</code>
+              <code class="muted">{value}</code>
+            </li>
+          ))
+        }
+      </ul>
+      <h3 class="hud">Game accents</h3>
+      <ul class="swatches" role="list">
+        {
+          games.map((g) => (
+            <li>
+              <span class="chip" style={`background:${g.accentColor}`} />
+              <code>{g.slug}</code>
+              <code class="muted">{g.accentColor}</code>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="hud">Type</h2>
+      <p class="spec-pixel">Pixelify Sans — Yıldızdan yıldıza</p>
+      <p class="hud">JetBrains Mono · HUD label · 3 / 5 stars · çğıİöşü</p>
+      <p>
+        IBM Plex Sans gövde metni. Wandaiser Games mobil için pixel art oyunlar yapar. Uzun paragraflar bu fontla
+        okunur; pixel font yalnızca başlık ve küçük vurgularda kullanılır.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="hud">Brand · {constellationConfig.stars.length} stars</h2>
+      <div class="row">
+        <img class="pixel" src="/brand/logo_wandaiser_x4.png" alt="" width="384" height="112" />
+        <img class="pixel" src="/brand/icon_64.png" alt="" width="128" height="128" />
+      </div>
+    </section>
+
+    <section>
+      <h2 class="hud">Game placeholders (4×)</h2>
+      {
+        games.map((g) => (
+          <div class="row game" style={`--accent-game:${g.accentColor}`}>
+            <img class="pixel" src={g.icon} alt="" width="128" height="128" />
+            <div class="sprite" style={`--frames:${g.spriteFrames};background-image:url(${g.sprite})`} role="img" aria-label={`${g.name} idle sprite`} />
+            {g.screenshots.map((s) => <img class="pixel" src={s} alt="" width="90" height="160" loading="lazy" />)}
+          </div>
+        ))
+      }
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .sg {
+    padding-block: var(--space-16);
+  }
+  section {
+    margin-top: var(--space-12);
+  }
+  .swatches {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-6);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: var(--space-3);
+  }
+  .swatches li {
+    display: grid;
+    gap: var(--space-1);
+    font-size: var(--fs-small);
+  }
+  .chip {
+    height: 48px;
+    box-shadow: inset 0 0 0 1px var(--c-dim);
+  }
+  code {
+    font-family: var(--font-mono);
+  }
+  .muted {
+    color: var(--c-text-muted);
+  }
+  .spec-pixel {
+    font-family: var(--font-pixel);
+    font-size: var(--fs-h2);
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: end;
+    margin-bottom: var(--space-6);
+  }
+  .row img[height='160'] {
+    width: 90px;
+    height: 160px;
+  }
+  /* Sprite sheet idle animasyonu — steps() ile tam kare kare, ara piksel yok */
+  .sprite {
+    width: 96px;
+    height: 96px;
+    background-size: calc(var(--frames) * 96px) 96px;
+    image-rendering: pixelated;
+    animation: idle 0.8s steps(var(--frames)) infinite;
+  }
+  @keyframes idle {
+    to {
+      background-position: calc(var(--frames) * -96px) 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sprite {
+      animation: none;
+    }
+  }
+</style>

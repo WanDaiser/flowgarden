@@ -1,0 +1,11 @@
+{
+  "$comment": "W takımyıldızı — marka logosundaki 5 yıldızın geometrisi (art_source/build_art.py STARS). x/y dünya koordinatı, 0–1 arası (kare dünya). 'big' = logodaki en üst, ateşböceğinin oturduğu yıldız.",
+  "stars": [
+    { "id": "w1", "x": 0.2, "y": 0.3 },
+    { "id": "w2", "x": 0.35, "y": 0.72 },
+    { "id": "w3", "x": 0.5, "y": 0.42 },
+    { "id": "w4", "x": 0.65, "y": 0.72 },
+    { "id": "w5", "x": 0.8, "y": 0.24, "big": true }
+  ],
+  "lines": [["w1", "w2"], ["w2", "w3"], ["w3", "w4"], ["w4", "w5"]]
+}

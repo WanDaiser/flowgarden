@@ -1,0 +1,10 @@
+---
+import SkyPage from '../../../components/SkyPage.astro';
+import { gamePaths, gameMeta } from '../../../lib/pages';
+
+export const getStaticPaths = gamePaths;
+const { game } = Astro.props;
+const meta = gameMeta(game, 'tr');
+---
+
+<SkyPage locale="tr" initial={game.slug} {...meta} />

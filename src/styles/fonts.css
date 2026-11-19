@@ -1,0 +1,15 @@
+/*
+ * Self-host fontlar (Fontsource paketleri; Astro derlemede woff2 dosyalarını kendi
+ * çıktısına kopyalar, dış istek yok). Hepsi font-display: swap.
+ * Sadece latin + latin-ext (Türkçe: ç ğ ı İ ö ş ü) alt kümeleri ve gereken ağırlıklar yüklenir.
+ */
+@import '@fontsource/pixelify-sans/latin-500.css';
+@import '@fontsource/pixelify-sans/latin-ext-500.css';
+
+@import '@fontsource/jetbrains-mono/latin-400.css';
+@import '@fontsource/jetbrains-mono/latin-ext-400.css';
+
+@import '@fontsource/ibm-plex-sans/latin-400.css';
+@import '@fontsource/ibm-plex-sans/latin-ext-400.css';
+@import '@fontsource/ibm-plex-sans/latin-600.css';
+@import '@fontsource/ibm-plex-sans/latin-ext-600.css';

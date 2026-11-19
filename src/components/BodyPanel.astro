@@ -1,0 +1,116 @@
+---
+/**
+ * Haritanın kenarındaki gök cisimlerinin panelleri: uydu (Hakkımızda), gözlem kulesi (İletişim).
+ */
+import { site } from '../config/site.config';
+import { t, localizePath, type Locale } from '../i18n';
+
+interface Props {
+  id: 'about' | 'contact';
+  locale: Locale;
+  gameCount: number;
+  primary?: boolean;
+  prev?: { id: string; label: string; path: string };
+  next?: { id: string; label: string; path: string };
+}
+const { id, locale, gameCount, primary = false, prev, next } = Astro.props;
+const Heading = primary ? 'h1' : 'h2';
+const headingId = `panel-title-${id}`;
+import PixelIcon from './PixelIcon.astro';
+---
+
+<article class="panel body-panel" data-panel={id} aria-labelledby={headingId}>
+  <div class="panel-frame pframe pframe--ornate">
+    <div class="panel-scroll">
+      <p class="hud panel-kicker"><span>{t(locale, id === 'about' ? 'about.kicker' : 'contact.kicker')}</span></p>
+      <Heading id={headingId} class="title-pixel" tabindex="-1" data-panel-heading>
+        {t(locale, id === 'about' ? 'about.title' : 'contact.title')}
+      </Heading>
+
+      {
+        id === 'about' ? (
+          <>
+            <p class="tagline">{t(locale, 'about.lead')}</p>
+            <p class="desc">{t(locale, 'about.body1')}</p>
+            <p class="desc">{t(locale, 'about.body2')}</p>
+            <dl class="facts">
+              <div>
+                <dt class="hud">{t(locale, 'about.fact.platform')}</dt>
+                <dd>{t(locale, 'about.fact.platformValue')}</dd>
+              </div>
+              <div>
+                <dt class="hud">{t(locale, 'about.fact.style')}</dt>
+                <dd>{t(locale, 'about.fact.styleValue')}</dd>
+              </div>
+              <div>
+                <dt class="hud">{t(locale, 'about.fact.games')}</dt>
+                <dd>{gameCount}</dd>
+              </div>
+            </dl>
+          </>
+        ) : (
+          <>
+            <p class="tagline">{t(locale, 'contact.lead')}</p>
+            <dl class="facts">
+              <div>
+                <dt class="hud">{t(locale, 'contact.email')}</dt>
+                <dd>
+                  {site.contactEmail ? (
+                    <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>
+                  ) : (
+                    <span class="ph-text">{t(locale, 'contact.emailMissing')}</span>
+                  )}
+                </dd>
+              </div>
+              {site.socials.length > 0 && (
+                <div>
+                  <dt class="hud">{t(locale, 'contact.social')}</dt>
+                  <dd>
+                    <ul class="socials" role="list">
+                      {site.socials.map((s) => (
+                        <li>
+                          <a href={s.url} rel="noopener me" target="_blank">
+                            {s.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </dd>
+                </div>
+              )}
+            </dl>
+            <p>
+              <a class="pbtn" href={localizePath('/press', locale)}>
+                {t(locale, 'contact.pressCta')}
+              </a>
+            </p>
+          </>
+        )
+      }
+
+      <nav class="panel-nav" aria-label={t(locale, id === 'about' ? 'about.title' : 'contact.title')}>
+        {
+          prev ? (
+            <a class="pbtn" href={prev.path} data-go={prev.id} aria-label={`${t(locale, 'nav.prev')}: ${prev.label}`}>
+              ← <span>{prev.label}</span>
+            </a>
+          ) : (
+            <span />
+          )
+        }
+        <a class="pbtn" href={localizePath('/', locale)} data-go="map" aria-label={t(locale, 'nav.home')}>
+          <PixelIcon name="w" scale={2} />
+        </a>
+        {
+          next ? (
+            <a class="pbtn" href={next.path} data-go={next.id} aria-label={`${t(locale, 'nav.next')}: ${next.label}`}>
+              <span>{next.label}</span> →
+            </a>
+          ) : (
+            <span />
+          )
+        }
+      </nav>
+    </div>
+  </div>
+</article>

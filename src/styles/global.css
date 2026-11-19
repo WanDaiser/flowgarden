@@ -1,0 +1,262 @@
+@import './fonts.css';
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--c-bg);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Tipografi kararı (a): pixel font yalnızca büyük başlıklarda; küçük başlıklar monospace. */
+h1,
+.title-pixel {
+  font-family: var(--font-pixel);
+  font-weight: 500;
+  font-size: var(--fs-h1);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  margin: 0 0 var(--space-4);
+  text-wrap: balance;
+}
+h2,
+h3 {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: var(--fs-h3);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  line-height: 1.4;
+  color: var(--c-text-muted);
+  margin: 0 0 var(--space-3);
+}
+h2.title-pixel {
+  font-family: var(--font-pixel);
+  font-size: var(--fs-h2);
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--c-text);
+  line-height: 1.1;
+}
+
+p {
+  margin: 0 0 var(--space-4);
+  max-width: var(--measure);
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--c-text);
+  text-decoration-color: var(--c-faint);
+  text-underline-offset: 3px;
+}
+a:hover {
+  text-decoration-color: var(--accent-game);
+}
+
+img,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+.pixel {
+  image-rendering: pixelated;
+}
+
+:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--c-gold);
+  color: var(--c-night);
+}
+
+/* ---------- özel imleç: küçük pixel yıldız (yalnızca fare) ---------- */
+@media (hover: hover) and (pointer: fine) {
+  html {
+    cursor:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' shape-rendering='crispEdges'%3E%3Cpath fill='%2307061a' d='M6 0h3v5h1v1h5v3h-5v1H9v5H6v-5H5V9H0V6h5V5h1z'/%3E%3Cpath fill='%23a3b1ec' d='M7 1h1v5h5v1H8v5H7V7H2V6h5z'/%3E%3Cpath fill='%23f3f5ff' d='M6 6h3v3H6z'/%3E%3C/svg%3E")
+        7 7,
+      auto;
+  }
+  a,
+  button,
+  [role='button'],
+  label,
+  summary {
+    cursor:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' shape-rendering='crispEdges'%3E%3Cpath fill='%2307061a' d='M6 0h3v5h1v1h5v3h-5v1H9v5H6v-5H5V9H0V6h5V5h1z'/%3E%3Cpath fill='%23ffd65c' d='M7 1h1v5h5v1H8v5H7V7H2V6h5z'/%3E%3Cpath fill='%23fff6c4' d='M6 6h3v3H6z'/%3E%3C/svg%3E")
+        7 7,
+      pointer;
+  }
+}
+
+/* ---------- yardımcılar ---------- */
+
+.hud {
+  font-family: var(--font-mono);
+  font-size: var(--fs-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  left: var(--space-4);
+  top: -100px;
+  z-index: 200;
+  padding: var(--space-2) var(--space-3);
+  background: var(--c-gold);
+  color: var(--c-night);
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+}
+.skip-link:focus {
+  top: var(--space-4);
+}
+
+.container {
+  width: 100%;
+  max-width: 1120px;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/*
+ * Pixel çerçeve: basamaklı köşeler (clip-path) + 2px iç kenar.
+ * Köşelerde kenar kesilir; pixel art pencere gibi görünür. Renk: --frame.
+ */
+.pframe {
+  --frame: var(--c-border);
+  --notch: 4px;
+  position: relative;
+  background: var(--c-surface);
+  box-shadow: inset 0 0 0 2px var(--frame);
+  clip-path: polygon(
+    0 var(--notch),
+    calc(var(--notch) / 2) var(--notch),
+    calc(var(--notch) / 2) calc(var(--notch) / 2),
+    var(--notch) calc(var(--notch) / 2),
+    var(--notch) 0,
+    calc(100% - var(--notch)) 0,
+    calc(100% - var(--notch)) calc(var(--notch) / 2),
+    calc(100% - var(--notch) / 2) calc(var(--notch) / 2),
+    calc(100% - var(--notch) / 2) var(--notch),
+    100% var(--notch),
+    100% calc(100% - var(--notch)),
+    calc(100% - var(--notch) / 2) calc(100% - var(--notch)),
+    calc(100% - var(--notch) / 2) calc(100% - var(--notch) / 2),
+    calc(100% - var(--notch)) calc(100% - var(--notch) / 2),
+    calc(100% - var(--notch)) 100%,
+    var(--notch) 100%,
+    var(--notch) calc(100% - var(--notch) / 2),
+    calc(var(--notch) / 2) calc(100% - var(--notch) / 2),
+    calc(var(--notch) / 2) calc(100% - var(--notch)),
+    0 calc(100% - var(--notch))
+  );
+}
+
+/* Köşe süsleri: çerçevenin iki köşesinde 2x2 parlak piksel. */
+.pframe--ornate::before,
+.pframe--ornate::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--accent-game);
+  pointer-events: none;
+}
+.pframe--ornate::before {
+  top: 6px;
+  left: 6px;
+}
+.pframe--ornate::after {
+  bottom: 6px;
+  right: 6px;
+}
+
+/* Pixel buton: hover'da çerçeve "yanar" (2 adımda), basınca 1 mantıksal piksel aşağı iner. */
+.pbtn {
+  --frame: var(--c-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 var(--space-4);
+  border: 0;
+  color: var(--c-text);
+  background: var(--c-surface);
+  font-family: var(--font-mono);
+  font-size: var(--fs-hud);
+  letter-spacing: var(--tracking-hud);
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: inset 0 0 0 2px var(--frame);
+  clip-path: polygon(0 4px, 2px 4px, 2px 2px, 4px 2px, 4px 0, calc(100% - 4px) 0, calc(100% - 4px) 2px, calc(100% - 2px) 2px, calc(100% - 2px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px), calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 2px), 2px calc(100% - 2px), 2px calc(100% - 4px), 0 calc(100% - 4px));
+  transition:
+    box-shadow var(--dur-ui) steps(2, jump-end),
+    color var(--dur-ui) steps(2, jump-end);
+  -webkit-user-select: none;
+  user-select: none;
+}
+.pbtn:hover,
+.pbtn:focus-visible,
+.pbtn[aria-pressed='true'] {
+  --frame: var(--accent-game);
+  color: var(--c-white);
+}
+.pbtn:active {
+  transform: translateY(2px);
+}
+.pbtn:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 2px var(--frame),
+    inset 0 0 0 4px var(--c-night);
+}
+.pbtn--solid {
+  background: var(--accent-game);
+  color: var(--c-void);
+  --frame: var(--accent-game);
+}
+.pbtn--solid:hover,
+.pbtn--solid:focus-visible {
+  color: var(--c-void);
+  --frame: var(--c-white);
+}

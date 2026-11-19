@@ -1,0 +1,86 @@
+---
+/**
+ * 404: haritadan kaybolmuş tek bir yıldız. Tıklanınca eve döner.
+ * Statik hosting tek bir 404 dosyası sunduğu için iki dil birlikte gösterilir.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { t } from '../i18n';
+---
+
+<BaseLayout locale="en" title={t('en', 'notFound.title')} noindex>
+  <main id="main" class="lost">
+    <a class="lost-star" href="/" aria-label={t('en', 'notFound.cta')}>
+      <svg width="88" height="88" viewBox="0 0 11 11" shape-rendering="crispEdges" aria-hidden="true">
+        <path fill="#5d68ad" d="M5 0h1v2H5zM5 9h1v2H5zM0 5h2v1H0zM9 5h2v1H9z"></path>
+        <path fill="#a3b1ec" d="M5 2h1v2H5zM5 7h1v2H5zM2 5h2v1H2zM7 5h2v1H7z"></path>
+        <path fill="#f3f5ff" d="M4 4h3v3H4z"></path>
+        <path class="spark" fill="#a3b1ec" d="M3 3h1v1H3zM7 3h1v1H7zM3 7h1v1H3zM7 7h1v1H7z"></path>
+      </svg>
+    </a>
+    <p class="hud code">404</p>
+    <h1>{t('en', 'notFound.title')}</h1>
+    <p>{t('en', 'notFound.body')}</p>
+    <p lang="tr" class="tr">{t('tr', 'notFound.title')}: {t('tr', 'notFound.body')}</p>
+    <a class="pbtn pbtn--solid" href="/">{t('en', 'notFound.cta')}</a>
+  </main>
+</BaseLayout>
+
+<style>
+  .lost {
+    min-height: 100dvh;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    text-align: center;
+    padding: var(--space-8) var(--gutter);
+  }
+  .lost h1 {
+    font-size: clamp(2rem, 1.5rem + 2vw, 3rem);
+  }
+  .lost p {
+    color: var(--c-text-muted);
+  }
+  .tr {
+    font-size: var(--fs-small);
+    margin-bottom: var(--space-8);
+  }
+  .code {
+    margin: var(--space-6) 0 var(--space-2);
+  }
+  .lost-star {
+    display: block;
+    padding: var(--space-4);
+    animation: drift 6s steps(12) infinite alternate;
+  }
+  .lost-star:focus-visible {
+    outline-offset: 0;
+  }
+  .lost-star:hover svg {
+    transform: scale(1.25);
+  }
+  .lost-star svg {
+    transition: transform 160ms steps(2, jump-end);
+  }
+  .spark {
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes drift {
+    from {
+      transform: translate(-24px, 8px);
+    }
+    to {
+      transform: translate(24px, -8px);
+    }
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lost-star,
+    .spark {
+      animation: none;
+    }
+  }
+</style>

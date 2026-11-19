@@ -1,0 +1,9 @@
+---
+import LegalPage from '../../../components/LegalPage.astro';
+import { privacyPaths } from '../../../lib/privacy';
+
+export const getStaticPaths = () => privacyPaths('tr');
+const { entry, fallback } = Astro.props;
+---
+
+<LegalPage locale="tr" entry={entry} fallback={fallback} />

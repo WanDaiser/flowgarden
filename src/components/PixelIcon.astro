@@ -1,0 +1,41 @@
+---
+/**
+ * Küçük pixel ikonlar. Her ikon bir satır dizisi: "#" dolu piksel.
+ * Tam sayı katla büyütülür (size = piksel genişliği × kat).
+ */
+const ICONS = {
+  // W takımyıldızı (haritaya dön)
+  w: ['#.....#', '#.....#', '#..#..#', '#.#.#.#', '.#...#.'],
+  // hoparlör açık / kapalı
+  soundOn: ['...#....', '..##..#.', '####.#.#', '####.#.#', '####.#.#', '..##..#.', '...#....'],
+  soundOff: ['...#....', '..##....', '####.#.#', '####..#.', '####.#.#', '..##....', '...#....'],
+  close: ['#...#', '.#.#.', '..#..', '.#.#.', '#...#'],
+  star: ['..#..', '..#..', '#####', '..#..', '..#..'],
+} as const;
+
+interface Props {
+  name: keyof typeof ICONS;
+  scale?: number;
+  class?: string;
+}
+const { name, scale = 2, class: cls } = Astro.props;
+const rows = ICONS[name];
+const w = Math.max(...rows.map((r) => r.length));
+const h = rows.length;
+let d = '';
+rows.forEach((row, y) => {
+  [...row].forEach((ch, x) => {
+    if (ch === '#') d += `M${x} ${y}h1v1h-1z`;
+  });
+});
+---
+
+<svg
+  class={cls}
+  width={w * scale}
+  height={h * scale}
+  viewBox={`0 0 ${w} ${h}`}
+  shape-rendering="crispEdges"
+  aria-hidden="true"
+  focusable="false"><path fill="currentColor" d={d}></path></svg
+>

@@ -1,0 +1,171 @@
+---
+/** Basın kiti: künye, indirilebilir logolar, oyunlar, palet. */
+import DocLayout from '../layouts/DocLayout.astro';
+import { t, localizePath, type Locale } from '../i18n';
+import { getGames, localizeGame } from '../lib/games';
+import { palette } from '../config/site.config';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const games = (await getGames()).map((g) => localizeGame(g, locale));
+
+const logos = [
+  { src: '/brand/logo_wandaiser_x8.png', label: 'Logo · 768×224 · transparent', preview: '/brand/logo_wandaiser_x4.png', w: 384, h: 112 },
+  { src: '/brand/logo_wandaiser_on_night_x8.png', label: 'Logo · 768×224 · night', preview: '/brand/logo_wandaiser_on_night_x8.png', w: 384, h: 112 },
+  { src: '/brand/mark_transparent_512.png', label: 'Mark · 512×512 · transparent', preview: '/brand/mark_transparent_512.png', w: 128, h: 128 },
+  { src: '/brand/mark_for_light_bg_512.png', label: 'Mark · 512×512 · light bg', preview: '/brand/mark_for_light_bg_512.png', w: 128, h: 128 },
+  { src: '/brand/play_icon_512.png', label: 'App icon · 512×512', preview: '/brand/play_icon_512.png', w: 128, h: 128 },
+  { src: '/brand/profile_1024.png', label: 'Profile · 1024×1024', preview: '/brand/profile_1024.png', w: 128, h: 128 },
+];
+const swatches = [
+  ['night', palette.night],
+  ['void', palette.void],
+  ['star blue', palette.starBlue],
+  ['star white', palette.starWhite],
+  ['line', palette.lineRest],
+  ['glow gold', palette.glowGold],
+  ['ember', palette.ember],
+];
+---
+
+<DocLayout locale={locale} title={t(locale, 'press.title')} description={t(locale, 'press.lead')}>
+  <p class="lead">{t(locale, 'press.lead')}</p>
+
+  <h2>{t(locale, 'press.facts')}</h2>
+  <dl class="facts">
+    <div><dt class="hud">Studio</dt><dd>WanDaiser Games</dd></div>
+    <div><dt class="hud">{t(locale, 'about.fact.platform')}</dt><dd>{t(locale, 'about.fact.platformValue')}</dd></div>
+    <div><dt class="hud">{t(locale, 'about.fact.style')}</dt><dd>{t(locale, 'about.fact.styleValue')}</dd></div>
+    <div><dt class="hud">{t(locale, 'nav.contact')}</dt><dd><a href={localizePath('/contact', locale)}>{t(locale, 'contact.title')}</a></dd></div>
+  </dl>
+  <p>{t(locale, 'about.lead')} {t(locale, 'about.body1')}</p>
+
+  <h2>{t(locale, 'press.logos')}</h2>
+  <ul class="assets" role="list">
+    {
+      logos.map((l) => (
+        <li class="pframe">
+          <div class="asset-preview">
+            <img class="pixel" src={l.preview} width={l.w} height={l.h} alt="" loading="lazy" />
+          </div>
+          <p class="hud">{l.label}</p>
+          <a class="pbtn" href={l.src} download>
+            {t(locale, 'press.download')}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2>{t(locale, 'press.games')}</h2>
+  <ul class="games" role="list">
+    {
+      games.map((g) => (
+        <li class="pframe" style={`--accent-game:${g.accentColor}`}>
+          <img class="pixel" src={g.icon} width="64" height="64" alt="" loading="lazy" />
+          <div>
+            <p class="game-name">
+              <a href={localizePath(`/games/${g.slug}`, locale)}>{g.name}</a>
+            </p>
+            <p class="hud">{t(locale, `status.${g.status}`)}</p>
+            <p>{g.tagline}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2>{t(locale, 'press.palette')}</h2>
+  <ul class="swatches" role="list">
+    {
+      swatches.map(([name, hex]) => (
+        <li>
+          <span class="chip" style={`background:${hex}`} />
+          <span class="hud">{name}</span>
+          <code>{hex}</code>
+        </li>
+      ))
+    }
+  </ul>
+</DocLayout>
+
+<style>
+  .lead {
+    font-size: var(--fs-lead);
+    color: var(--c-text) !important;
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--space-4);
+    margin: 0 0 var(--space-6);
+  }
+  .facts dd {
+    margin: var(--space-1) 0 0;
+  }
+  .assets,
+  .games,
+  .swatches {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-4);
+  }
+  .assets {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+  .assets li {
+    padding: var(--space-4);
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+  }
+  .assets p {
+    margin: 0;
+  }
+  .assets .pbtn {
+    justify-self: start;
+  }
+  .asset-preview {
+    display: grid;
+    place-items: center;
+    min-height: 140px;
+    background: var(--c-bg);
+  }
+  .asset-preview img {
+    max-width: 100%;
+    height: auto;
+  }
+  .games li {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    --frame: var(--c-border);
+  }
+  .games p {
+    margin: 0 0 var(--space-1);
+  }
+  .game-name {
+    font-family: var(--font-mono);
+  }
+  .swatches {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+  .swatches li {
+    display: grid;
+    gap: var(--space-1);
+  }
+  .chip {
+    height: 40px;
+    box-shadow: inset 0 0 0 1px var(--c-sleep);
+  }
+  code {
+    font-family: var(--font-mono);
+    font-size: var(--fs-small);
+    color: var(--c-text-muted);
+  }
+</style>

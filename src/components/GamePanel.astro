@@ -1,0 +1,167 @@
+---
+/**
+ * Bir oyunun "dünyası": yıldızına yaklaşınca açılan panel.
+ * JS kapalıyken de tam içerikli bir HTML makale olarak okunur.
+ */
+import { t, localizePath, type Locale } from '../i18n';
+import { localizeGame, type Game } from '../lib/games';
+import { imageSize, intScale } from '../lib/imageSize';
+import PlayBadge from './PlayBadge.astro';
+import { privacyFor } from '../lib/privacy';
+
+interface Props {
+  game: Game;
+  locale: Locale;
+  index: number;
+  total: number;
+  prev?: { id: string; label: string; path: string };
+  next?: { id: string; label: string; path: string };
+  /** Bu sayfanın ana içeriği mi (h1)? */
+  primary?: boolean;
+}
+
+const { game: raw, locale, index, total, prev, next, primary = false } = Astro.props;
+const g = localizeGame(raw, locale);
+const Heading = primary ? 'h1' : 'h2';
+const SubHeading = primary ? 'h2' : 'h3';
+const headingId = `panel-title-${g.slug}`;
+
+// Sprite: tam sayı katla ~96px'e büyüt
+const sheet = imageSize(g.sprite);
+const frameW = sheet ? Math.floor(sheet.width / g.spriteFrames) : 24;
+const frameH = sheet?.height ?? 24;
+const spriteScale = intScale(frameH, 96);
+const spriteW = frameW * spriteScale;
+const spriteH = frameH * spriteScale;
+
+const iconSize = imageSize(g.icon);
+const iconScale = intScale(iconSize?.height ?? 32, 64);
+const iconPx = (iconSize?.height ?? 32) * iconScale;
+
+// Ekran görüntüleri: küçük pixel görseller tam sayı katla, büyükler normal ölçeklenir
+const SHOT_H = 240;
+const shots = g.screenshots.map((src) => {
+  const s = imageSize(src) ?? { width: 90, height: 160 };
+  const pixelArt = s.height <= SHOT_H;
+  const scale = pixelArt ? intScale(s.height, SHOT_H) : SHOT_H / s.height;
+  return { src, width: Math.round(s.width * scale), height: Math.round(s.height * scale), pixelArt };
+});
+
+const soon = g.status === 'coming-soon';
+const youtube = g.trailer;
+const policy = await privacyFor(g.slug, locale);
+import PixelIcon from './PixelIcon.astro';
+---
+
+<article
+  class="panel game-panel"
+  data-panel={g.slug}
+  style={`--accent-game:${g.accentColor}`}
+  aria-labelledby={headingId}
+>
+  <div class="panel-frame pframe pframe--ornate">
+    <div class="panel-scroll">
+      <p class="hud panel-kicker">
+        <span>{String(index + 1).padStart(2, '0')} {t(locale, 'games.of')} {String(total).padStart(2, '0')}</span>
+        <span class="status" data-status={g.status}>{t(locale, `status.${g.status}`)}</span>
+        {g.placeholder && <span class="ph">{t(locale, 'games.placeholder')}</span>}
+      </p>
+
+      <div class="hero">
+        <div
+          class="sprite pixel"
+          role="img"
+          aria-label={g.name}
+          style={`--w:${spriteW}px;--h:${spriteH}px;--frames:${g.spriteFrames};background-image:url(${g.sprite})`}
+        >
+        </div>
+        <img class="icon pixel" src={g.icon} width={iconPx} height={iconPx} alt="" loading="lazy" decoding="async" />
+      </div>
+
+      <Heading id={headingId} class="title-pixel" tabindex="-1" data-panel-heading>{g.name}</Heading>
+      <p class="tagline">{g.tagline}</p>
+
+      <div class="cta">
+        {
+          !soon && g.googlePlayUrl ? (
+            <PlayBadge href={g.googlePlayUrl} locale={locale} gameName={g.name} />
+          ) : (
+            <p class="soon-note hud">
+              <span class="blink" aria-hidden="true" />
+              {t(locale, 'games.soonNote')}
+            </p>
+          )
+        }
+      </div>
+
+      <p class="desc">{g.description}</p>
+
+      {
+        shots.length > 0 && (
+          <section class="shots" aria-label={t(locale, 'games.screenshots')}>
+            <SubHeading>{t(locale, 'games.screenshots')}</SubHeading>
+            <ul role="list">
+              {shots.map((s, i) => (
+                <li>
+                  <a href={s.src} data-lightbox data-alt={`${g.name} — ${t(locale, 'games.screenshot')} ${i + 1}`}>
+                    <img
+                      class:list={[{ pixel: s.pixelArt }]}
+                      src={s.src}
+                      width={s.width}
+                      height={s.height}
+                      alt={`${g.name} — ${t(locale, 'games.screenshot')} ${i + 1}`}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      {
+        youtube && (
+          <p>
+            <a class="pbtn" href={youtube} rel="noopener" target="_blank">
+              ▶ {t(locale, 'games.trailer')}
+            </a>
+          </p>
+        )
+      }
+
+      {
+        policy && (
+          <p class="panel-legal hud">
+            <a href={localizePath(`/privacy/${g.slug}`, locale)}>{t(locale, 'games.privacy')}</a>
+          </p>
+        )
+      }
+
+      <nav class="panel-nav" aria-label={g.name}>
+        {
+          prev ? (
+            <a class="pbtn" href={prev.path} data-go={prev.id} aria-label={`${t(locale, 'nav.prev')}: ${prev.label}`}>
+              ← <span>{prev.label}</span>
+            </a>
+          ) : (
+            <span />
+          )
+        }
+        <a class="pbtn" href={localizePath('/', locale)} data-go="map" aria-label={t(locale, 'nav.home')}>
+          <PixelIcon name="w" scale={2} />
+        </a>
+        {
+          next ? (
+            <a class="pbtn" href={next.path} data-go={next.id} aria-label={`${t(locale, 'nav.next')}: ${next.label}`}>
+              <span>{next.label}</span> →
+            </a>
+          ) : (
+            <span />
+          )
+        }
+      </nav>
+    </div>
+  </div>
+</article>

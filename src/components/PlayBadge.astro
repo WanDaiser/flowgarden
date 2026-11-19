@@ -1,0 +1,47 @@
+---
+/**
+ * Google'ın resmi "Get it on Google Play" rozeti (kendi sunucumuzda, değiştirilmeden).
+ * Rozetin etrafında pixel çerçeve var; rozetin kendisi pixel art'a çevrilmez.
+ * Kurallar: https://partnermarketinghub.withgoogle.com/brands/google-play/
+ */
+import { t, type Locale } from '../i18n';
+import { imageSize } from '../lib/imageSize';
+
+interface Props {
+  href: string;
+  locale: Locale;
+  gameName: string;
+}
+const { href, locale, gameName } = Astro.props;
+const src = `/badges/google-play-${locale}.png`;
+const size = imageSize(src) ?? { width: 564, height: 168 };
+const height = 56;
+const width = Math.round((size.width / size.height) * height);
+---
+
+<a class="play-badge pframe" href={href} rel="noopener" target="_blank">
+  <img src={src} width={width} height={height} alt={`${t(locale, 'games.play')}: ${gameName}`} loading="lazy" decoding="async" />
+</a>
+
+<style>
+  .play-badge {
+    --frame: var(--c-border);
+    display: inline-block;
+    padding: 8px;
+    background: var(--c-void);
+    transition: box-shadow var(--dur-ui) steps(2, jump-end);
+  }
+  .play-badge img {
+    display: block;
+    height: 56px;
+    width: auto;
+  }
+  .play-badge:hover,
+  .play-badge:focus-visible {
+    --frame: var(--accent-game);
+    outline: none;
+  }
+  .play-badge:active {
+    transform: translateY(2px);
+  }
+</style>

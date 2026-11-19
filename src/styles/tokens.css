@@ -1,0 +1,85 @@
+/*
+ * Tasarım token'ları — "WanDaiser Night" marka paleti.
+ * src/config/site.config.ts → palette ile aynı tutulmalı.
+ * --accent-game: aktif oyunun rengi; bir oyun yıldızına yaklaşınca JS değiştirir.
+ */
+@property --accent-game {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffd65c;
+}
+
+:root {
+  /* Marka paleti */
+  --c-void: #07061a;
+  --c-night: #11102e;
+  --c-deep: #1b1745;
+  --c-violet: #2a1f5c;
+  --c-sleep: #33386e;
+  --c-faint: #5d68ad;
+  --c-line: #4d5fb0;
+  --c-line-lit: #86a3ea;
+  --c-blue: #a3b1ec; /* ikincil metin — night üzerinde 9.3:1 */
+  --c-white: #f3f5ff; /* ana metin — night üzerinde 17:1 */
+  --c-gold: #ffd65c; /* vurgu / CTA */
+  --c-core: #fff6c4;
+  --c-ember: #c9892f; /* ikinci vurgu (kıvılcım) */
+
+  /* Rol takma adları */
+  --c-bg: var(--c-night);
+  --c-surface: var(--c-void);
+  --c-border: var(--c-sleep);
+  --c-text: var(--c-white);
+  --c-text-muted: var(--c-blue);
+  --c-accent: var(--c-gold);
+  --accent-game: var(--c-gold);
+
+  /* Tipografi — pixel font yalnızca büyük başlıklarda */
+  --font-pixel: 'Pixelify Sans', ui-monospace, monospace;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --font-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --fs-hud: 0.75rem; /* 12px — Lighthouse okunabilirlik eşiği */
+  --fs-small: 0.8125rem;
+  --fs-body: 1rem;
+  --fs-lead: 1.125rem;
+  --fs-h3: 0.875rem;
+  --fs-h2: 2rem;
+  --fs-h1: clamp(2.25rem, 1.5rem + 3vw, 4rem);
+  --tracking-hud: 0.16em;
+
+  /* Ölçü — 4px ızgara */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --gutter: 16px;
+  --measure: 62ch;
+  --hud-inset: max(16px, env(safe-area-inset-left));
+
+  /* Hareket */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-ui: 180ms;
+
+  --focus-ring: 2px solid var(--c-gold);
+
+  color-scheme: dark;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 32px;
+    --hud-inset: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-ui: 0ms;
+  }
+}

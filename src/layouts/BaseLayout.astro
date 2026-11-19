@@ -1,0 +1,83 @@
+---
+import '../styles/global.css';
+import { t, localizePath, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  /** Sayfa başlığı (site adı otomatik eklenir). Boşsa yalnızca site adı. */
+  title?: string;
+  description?: string;
+  /** Open Graph görseli (site köküne göre yol). */
+  ogImage?: string;
+  noindex?: boolean;
+  /** Gökyüzü uygulaması sayfası mı? Açılış ekranı / JS algılaması için. */
+  sky?: { initial: string };
+  /** Dil değiştirince gidilecek yol (verilmezse aynı yolun diğer dili). */
+  altPath?: string;
+}
+
+const { locale, title, description, ogImage = '/og/default.png', noindex = false, sky, altPath } = Astro.props;
+const siteName = t(locale, 'meta.title');
+const fullTitle = title ? `${title} · ${siteName}` : siteName;
+const desc = description ?? t(locale, 'meta.description');
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const pathEn = localizePath(altPath && locale === 'tr' ? altPath : Astro.url.pathname, 'en');
+const pathTr = localizePath(altPath && locale === 'en' ? altPath : Astro.url.pathname, 'tr');
+---
+
+<!doctype html>
+<html lang={locale} data-initial={sky?.initial} class:list={[{ 'is-sky': !!sky }]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={desc} />
+    <meta name="theme-color" content="#11102e" />
+    <link rel="icon" href="/brand/mark_transparent_32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/brand/play_icon_512.png" />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="en" href={new URL(pathEn, Astro.site)} />
+    <link rel="alternate" hreflang="tr" href={new URL(pathTr, Astro.site)} />
+    <link rel="alternate" hreflang="x-default" href={new URL(pathEn, Astro.site)} />
+    {noindex && <meta name="robots" content="noindex" />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="WanDaiser Games" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL(ogImage, Astro.site)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={locale === 'tr' ? 'tr_TR' : 'en_US'} />
+    <meta property="og:locale:alternate" content={locale === 'tr' ? 'en_US' : 'tr_TR'} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    {
+      sky && (
+        <script is:inline>
+          (function () {
+            var d = document.documentElement;
+            var c = document.createElement('canvas');
+            if (!(c.getContext && c.getContext('2d'))) return;
+            d.classList.add('js');
+            var seen = false;
+            try { seen = sessionStorage.getItem('wg:intro-seen') === '1'; } catch (e) {}
+            var rm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (!seen && !rm && d.getAttribute('data-initial') === 'map') d.classList.add('intro-pending');
+            // Güvenlik ağı: uygulama 6 sn içinde başlamazsa sade HTML'e dön.
+            setTimeout(function () {
+              if (!d.classList.contains('app-ready')) d.classList.remove('js', 'intro-pending');
+            }, 6000);
+          })();
+        </script>
+      )
+    }
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t(locale, 'nav.skipToContent')}</a>
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,19 @@
+---
+/** Gökyüzü sayfası: layout + uygulama. Sayfa dosyaları yalnızca bunu çağırır. */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SkyApp from './SkyApp.astro';
+import type { Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  initial: string;
+  title?: string;
+  description?: string;
+  ogImage?: string;
+}
+const { locale, initial, title, description, ogImage } = Astro.props;
+---
+
+<BaseLayout locale={locale} title={title} description={description} ogImage={ogImage} sky={{ initial }}>
+  <SkyApp locale={locale} initial={initial} />
+</BaseLayout>
