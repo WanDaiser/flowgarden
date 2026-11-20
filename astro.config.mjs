@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 // [DOLDUR] Gerçek alan adı belli olunca değiştir (Open Graph ve sitemap bunu kullanır).
-const SITE_URL = 'https://wandaiser.games';
+const SITE_URL = 'https://wandaiser-games.vercel.app';
 
 export default defineConfig({
   site: SITE_URL,

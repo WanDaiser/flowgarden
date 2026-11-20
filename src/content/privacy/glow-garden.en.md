@@ -36,4 +36,4 @@ If we update this policy, we will change the date on this page.
 
 ## Contact
 
-Questions: **[contact email]**
+Questions: **wandaisergames@gmail.com**

@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /dev/
 
-Sitemap: https://wandaiser.games/sitemap-index.xml
+Sitemap: https://wandaiser-games.vercel.app/sitemap-index.xml

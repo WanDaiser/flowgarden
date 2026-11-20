@@ -10,7 +10,7 @@ import constellation from './constellation.json';
 export const site = {
   name: 'WanDaiser Games',
   /** [DOLDUR] Boş bırakılırsa iletişim panelinde gösterilmez. */
-  contactEmail: '',
+  contactEmail: 'wandaisergames@gmail.com',
   /** [DOLDUR] Örn: { label: 'X / Twitter', url: 'https://x.com/...' } */
   socials: [] as { label: string; url: string }[],
 } as const;

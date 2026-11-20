@@ -36,4 +36,4 @@ Bu politikayı güncellersek bu sayfadaki tarihi değiştiririz.
 
 ## İletişim
 
-Sorularınız için: **[iletişim e-postası]**
+Sorularınız için: **wandaisergames@gmail.com**

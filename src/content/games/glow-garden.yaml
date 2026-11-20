@@ -1,0 +1,20 @@
+slug: glow-garden
+name: "Glow Garden"
+status: coming-soon
+accentColor: "#ffd65c"
+tagline:
+  en: "A calm night garden that glows while you're away."
+  tr: "Sen yokken de parlayan sakin bir gece bahçesi."
+description:
+  en: "When night falls, your garden wakes up. Plant seeds, gather light and discover 130 plants and hybrids by placing them side by side. Befriend 30 animals across five magical biomes, then call the Dawn to start stronger."
+  tr: "Gece çöktüğünde bahçen uyanır. Tohum ek, ışık topla, bitkileri yan yana koyarak 130 bitki ve melez keşfet. Beş büyülü biyomda 30 hayvanla dost ol, sonra Şafak'ı çağırıp daha güçlü başla."
+icon: /games/glow-garden/icon.png
+sprite: /games/glow-garden/sprite.png
+spriteFrames: 4
+screenshots:
+  - /games/glow-garden/screen-1.webp
+  - /games/glow-garden/screen-2.webp
+  - /games/glow-garden/screen-3.webp
+  - /games/glow-garden/screen-4.webp
+starPosition: { x: 0.80, y: 0.24 }
+order: 1
